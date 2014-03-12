@@ -34,7 +34,7 @@ public class ResourceLoader {
                 URL resource = resources.nextElement();
                 if ( "file".equals( resource.getProtocol() ) ) {
                     File dir = new File( resource.getFile() );
-                    for ( File f : dir.listFiles() ) {
+                    for ( File f : Optional.ofNullable( dir.listFiles() ).orElse( new File[ 0 ] ) ) {
                         if ( f.getName().endsWith( ".properties" ) )
                             identifiers.add( f.getName().substring( 0, f.getName().length() - ".properties".length() ) );
                     }

@@ -15,7 +15,7 @@ public class CodeEditorTest {
 
         @Override
         public void start( Stage stage ) throws Exception {
-            Scene scene = new Scene( new CodeEditor(), 600, 400 );
+            Scene scene = new Scene( new CodeEditor(), 800, 400 );
             stage.setScene( scene );
             stage.centerOnScreen();
             stage.show();
