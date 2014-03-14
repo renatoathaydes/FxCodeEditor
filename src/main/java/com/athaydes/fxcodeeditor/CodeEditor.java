@@ -9,6 +9,7 @@ import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.StackPane;
 import javafx.scene.web.WebView;
 
@@ -28,6 +29,7 @@ public class CodeEditor extends StackPane {
 
     private final Map<String, String> stylesByPattern = new LinkedHashMap<>();
     private final Map<Delimiter, String> stylesByDelimiter = new LinkedHashMap<>();
+    private String highLightString = null;
 
     private HtmlText editorText;
     private HtmlText viewText;
@@ -45,6 +47,7 @@ public class CodeEditor extends StackPane {
         view.getEngine().loadContent( viewText.withContent( "" ) );
         editor.setOpacity( 0.5 );
         editor.setOnKeyPressed( this::onKeyPressed );
+        editor.setOnMouseClicked( this::onMousePressed );
         Platform.runLater( editor::requestFocus );
     }
 
@@ -65,13 +68,35 @@ public class CodeEditor extends StackPane {
         if ( parts.length == 2 ) {
             System.out.println( "Adding style! " + Arrays.toString( parts ) );
             stylesByPattern.put( parts[ 0 ].trim(), parts[ 1 ].trim() );
-            onKeyPressed( null );
+            reStyle();
         }
     }
 
     private void onKeyPressed( KeyEvent event ) {
+        noHightLight();
+        reStyle();
+    }
+
+    private void reStyle() {
         Platform.runLater( () -> view.getEngine().loadContent(
                 viewText.withContent( styleHtmlText( getEditorHtmlText() ) ) ) );
+    }
+
+    private void onMousePressed( MouseEvent event ) {
+        noHightLight();
+        if ( event.getClickCount() == 2 ) {
+            String selection = editor.getEngine().executeScript( "document.getSelection()" ).toString();
+            stylesByPattern.put( selection, "background-color:blue;" );
+            highLightString = selection;
+        }
+        reStyle();
+    }
+
+    private void noHightLight() {
+        if ( highLightString != null ) {
+            stylesByPattern.remove( highLightString );
+            highLightString = null;
+        }
     }
 
     private String styleHtmlText( String htmlText ) {
